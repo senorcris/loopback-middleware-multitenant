@@ -21,7 +21,8 @@
   "dependencies": {
     "debug": "^2.2.0",
     "loopback": "^2.26.2",
-    "loopback-datasource-juggler": "^2.45.0"
+    "loopback-datasource-juggler": "^2.45.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "chai": "^3.4.1",
