@@ -1,0 +1,35 @@
+{
+  "name": "loopback-middleware-multitenant",
+  "version": "0.0.1",
+  "description": "Loopback multi-tenant support with a shared database mode",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec test",
+    "test-watch": "mocha -w -R spec test",
+    "test-debug": "mocha debug -R spec test",
+    "pretest": "eslint ."
+  },
+  "keywords": [
+    "multi-tenant",
+    "multitenant",
+    "shared",
+    "loopback",
+    "strongloop"
+  ],
+  "author": "senorcris",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "loopback": "^2.26.2",
+    "loopback-datasource-juggler": "^2.45.0",
+    "proxyquire": "^1.7.4"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "eslint": "^1.10.3",
+    "jshint": "^2.5.6",
+    "mocha": "latest",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0"
+  }
+}

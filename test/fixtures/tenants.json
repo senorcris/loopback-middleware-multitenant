@@ -1,0 +1,8 @@
+{
+  "smallworld": {
+    "name": "smallworld",
+    "default": true
+  },
+  "example": {},
+  "bigworld": {}
+}
