@@ -1,6 +1,6 @@
 'use strict';
 var proxyquire = require('proxyquire').noCallThru();
-var getStub = sinon.stub();
+var getStub;
 var multitenantScope = proxyquire('../lib/mixins/multitenant-scope', {
   'loopback': {
     'getCurrentContext': function() {
