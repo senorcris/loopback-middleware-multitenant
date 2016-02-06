@@ -156,9 +156,51 @@ describe('Scope', function() {
   });
 
   describe("setScope", function() {
-    it('should not run for a shared data source');
-    it('should bail if invalid JSON is used for the filters');
-    it('should work for filters using the format filter[name]=value via query strings');
-    it('should extend filters with a tenantId where clause');
+    it('should not run for a shared data source', function() {
+      var ctx = sandbox.stub({
+        args: {
+          filter: ''
+        }
+      });
+      var next = sandbox.stub();
+      getStub.onCall(0).returns('tenantOne');
+      getStub.onCall(1).returns({ sharedDataSource: false });
+      multitenantScope.setScope(ctx, next);
+      expect(ctx.args.filter).to.equal('');
+      expect(next).to.have.been.calledOnce;
+    });
+    it('should bail if invalid JSON is used for the filters', function() {
+      var ctx = sandbox.stub({
+        args: {
+          filter: '{"where":{"key":"value"},}'
+        }
+      });
+      var next = sandbox.stub();
+      sandbox.spy(JSON, 'parse');
+      getStub.onCall(0).returns('tenantOne');
+      getStub.onCall(1).returns({ sharedDataSource: true });
+      multitenantScope.setScope(ctx, next);
+      expect(JSON.parse).to.have.been.calledWith(ctx.args.filter);
+      expect(next).to.have.been.calledOnce;
+    });
+    it('should extend filters with a `tenantId` where clause', function() {
+      var ctx = sandbox.stub({
+        args: {
+          filter: '{"where":{"key":"value"}}'
+        }
+      });
+      var next = sandbox.stub();
+      getStub.onCall(0).returns('tenantOne');
+      getStub.onCall(1).returns({ sharedDataSource: true });
+      sandbox.spy(JSON, 'stringify');
+      multitenantScope.setScope(ctx, next);
+      expect(JSON.stringify).to.have.been.calledWith({
+        where: {
+          key: 'value',
+          tenant: 'tenantOne'
+        }
+      });
+      expect(next).to.have.been.calledOnce;
+    });
   });
 });
