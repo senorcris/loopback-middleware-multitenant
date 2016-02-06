@@ -127,6 +127,7 @@ describe('Scope', function() {
       expect(ctx.instance).to.not.contain.key('tenantId');
       expect(ctx.data).to.not.contain.key('tenantId');
     });
+
     it('should extend ctx.instance with a tenantId', function() {
       var ctx = sandbox.stub({
         instance: {},
@@ -140,6 +141,7 @@ describe('Scope', function() {
       expect(ctx.instance.tenantId).to.equal('tenantOne');
       expect(ctx.data).to.not.contain.key('tenantId');
     });
+
     it('should extend ctx.data with a tenantId', function() {
       var ctx = sandbox.stub({
         data: {}
@@ -151,5 +153,12 @@ describe('Scope', function() {
       expect(ctx.data).to.contain.key('tenantId');
       expect(ctx.data.tenantId).to.equal('tenantOne');
     });
+  });
+
+  describe("setScope", function() {
+    it('should not run for a shared data source');
+    it('should bail if invalid JSON is used for the filters');
+    it('should work for filters using the format filter[name]=value via query strings');
+    it('should extend filters with a tenantId where clause');
   });
 });
