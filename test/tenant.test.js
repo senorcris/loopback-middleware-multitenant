@@ -1,7 +1,7 @@
 'use strict';
 var proxyquire = require('proxyquire').noCallThru();
 
-describe.only('Tenant', function() {
+describe('Tenant', function() {
   var sandbox;
   var tenantMiddleware;
   var ds;

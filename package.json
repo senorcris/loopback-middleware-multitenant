@@ -7,6 +7,7 @@
     "test": "mocha -R spec test",
     "test-watch": "mocha -w -R spec test",
     "test-debug": "mocha debug -R spec test",
+    "coverage": "istanbul cover _mocha -- -R spec",
     "pretest": "eslint ."
   },
   "keywords": [
@@ -27,10 +28,11 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "eslint": "^1.10.3",
+    "istanbul": "^0.4.2",
     "jshint": "^2.5.6",
     "mocha": "latest",
+    "proxyquire": "^1.7.4",
     "sinon": "^1.17.2",
-    "sinon-chai": "^2.8.0",
-    "proxyquire": "^1.7.4"
+    "sinon-chai": "^2.8.0"
   }
 }
