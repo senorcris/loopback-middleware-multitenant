@@ -113,4 +113,43 @@ describe('Scope', function() {
       expect(ctx.query.where.tenantId).to.equal('tenantOne');
     });
   });
+
+  describe("limitChangesToTenant", function() {
+    it('should change ctx.instance or ctx.data when the data source is not shared', function() {
+      var ctx = sandbox.stub({
+        instance: {},
+        data: {}
+      });
+      var next = sandbox.stub();
+      getStub.onCall(0).returns('tenantOne');
+      getStub.onCall(1).returns({ sharedDataSource: false });
+      multitenantScope.limitChangesToTenant(ctx, next);
+      expect(ctx.instance).to.not.contain.key('tenantId');
+      expect(ctx.data).to.not.contain.key('tenantId');
+    });
+    it('should extend ctx.instance with a tenantId', function() {
+      var ctx = sandbox.stub({
+        instance: {},
+        data: {}
+      });
+      var next = sandbox.stub();
+      getStub.onCall(0).returns('tenantOne');
+      getStub.onCall(1).returns({ sharedDataSource: true });
+      multitenantScope.limitChangesToTenant(ctx, next);
+      expect(ctx.instance).to.contain.key('tenantId');
+      expect(ctx.instance.tenantId).to.equal('tenantOne');
+      expect(ctx.data).to.not.contain.key('tenantId');
+    });
+    it('should extend ctx.data with a tenantId', function() {
+      var ctx = sandbox.stub({
+        data: {}
+      });
+      var next = sandbox.stub();
+      getStub.onCall(0).returns('tenantOne');
+      getStub.onCall(1).returns({ sharedDataSource: true });
+      multitenantScope.limitChangesToTenant(ctx, next);
+      expect(ctx.data).to.contain.key('tenantId');
+      expect(ctx.data.tenantId).to.equal('tenantOne');
+    });
+  });
 });
