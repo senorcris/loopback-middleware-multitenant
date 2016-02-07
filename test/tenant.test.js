@@ -47,8 +47,9 @@ describe('Tenant', function() {
     });
     var middleware = tenantMiddleware({}, {
       sharedDataSource: true,
-      tenantConfig: {
-        tenantOne: {}
+      config: {
+        tenants: ['tenantOne'],
+        defaultApi: 'tenantOne',
       }
     });
     middleware(req, res, next);
@@ -72,7 +73,7 @@ describe('Tenant', function() {
     });
     var middleware = tenantMiddleware({}, {
       sharedDataSource: true,
-      tenantConfig: {}
+      config: {}
     });
     middleware(req, res, next);
     expect(res.statusCode).to.equal(500);
@@ -89,11 +90,9 @@ describe('Tenant', function() {
     });
     var middleware = tenantMiddleware({}, {
       sharedDataSource: true,
-      tenantConfig: {
-        tenantOne: {
-          'default': true,
-          'name': 'tenantOne'
-        }
+      config: {
+        tenants: ['tenantOne'],
+        defaultApi: 'tenantOne',
       }
     });
     middleware(req, res, next);
