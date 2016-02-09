@@ -8,6 +8,7 @@ describe('Tenant', function() {
   var ds;
   var getContextStub;
   var setContextStub;
+  var app;
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
     ds = sandbox.stub({
@@ -17,6 +18,8 @@ describe('Tenant', function() {
     setContextStub = sandbox.stub();
     tenantMiddleware = proxyquire('../lib/middleware/tenant', {
       '../mixins/multitenant-datasource': ds,
+    });
+    app = {
       'loopback': {
         'getCurrentContext': function() {
           return {
@@ -25,7 +28,7 @@ describe('Tenant', function() {
           };
         },
       },
-    });
+    };
   });
 
   afterEach(function() {
@@ -33,7 +36,7 @@ describe('Tenant', function() {
   });
 
   it('should initialize with default options', function() {
-    tenantMiddleware({});
+    tenantMiddleware(app);
     expect(ds.loadDataSources).to.have.been.called;
   });
 
@@ -45,7 +48,7 @@ describe('Tenant', function() {
         tenant: 'tenantOne',
       }
     });
-    var middleware = tenantMiddleware({}, {
+    var middleware = tenantMiddleware(app, {
       sharedDataSource: true,
       config: {
         tenants: ['tenantOne'],
@@ -60,7 +63,7 @@ describe('Tenant', function() {
     expect(next).to.have.been.calledOnce;
   });
   it('should set the tenant and tenantOptions for a request', function() {
-    tenantMiddleware({}, { tenantConfig: {} });
+    tenantMiddleware(app, { tenantConfig: {} });
     expect(ds.loadDataSources).to.have.been.called;
   });
   it('should respond with a status of 500 when a tenant id is not valid', function() {
@@ -71,7 +74,7 @@ describe('Tenant', function() {
         tenant: 'tenantOne',
       }
     });
-    var middleware = tenantMiddleware({}, {
+    var middleware = tenantMiddleware(app, {
       sharedDataSource: true,
       config: {}
     });
@@ -88,7 +91,7 @@ describe('Tenant', function() {
         tenant: 'api'
       }
     });
-    var middleware = tenantMiddleware({}, {
+    var middleware = tenantMiddleware(app, {
       sharedDataSource: true,
       config: {
         tenants: ['tenantOne'],

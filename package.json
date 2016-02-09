@@ -8,7 +8,7 @@
     "test-watch": "mocha -w -R spec test",
     "test-debug": "mocha debug -R spec test",
     "coverage": "istanbul cover _mocha -- -R spec",
-    "pretest": "eslint .",
+    "pretest": "jscs ./lib",
     "lint": "jscs ./lib",
     "lint-fix": "jscs --fix ./lib"
   },
