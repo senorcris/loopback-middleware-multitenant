@@ -2,18 +2,19 @@
 var proxyquire = require('proxyquire').noCallThru();
 var httpMocks = require('node-mocks-http');
 
-describe('Tenant', function() {
+describe('Tenant', function () {
   var sandbox;
   var tenantMiddleware;
   var ds;
   var getContextStub;
   var setContextStub;
   var app;
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.sandbox.create();
     ds = sandbox.stub({
-      'load': function(){},
-      'set': function(){},
+      load: function () {},
+
+      set: function () {},
     });
     getContextStub = sandbox.stub();
     setContextStub = sandbox.stub();
@@ -21,61 +22,61 @@ describe('Tenant', function() {
       '../mixins/multitenant-datasource': ds,
     });
     app = {
-      'loopback': {
-        'getCurrentContext': function() {
+      loopback: {
+        getCurrentContext: function () {
           return {
-            'get': getContextStub,
-            'set': setContextStub,
+            get: getContextStub,
+            set: setContextStub,
           };
         },
       },
     };
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  it('should initialize with default options', function() {
+  it('should initialize with default options', function () {
     tenantMiddleware();
     expect(ds.load).to.not.have.been.called;
   });
 
-  it('should call loadDataSources when options.sharedDataSource is falsy', function() {
+  it('should load data source when options.sharedDataSource is falsy', function () {
     var next = sandbox.stub();
     var res = httpMocks.createResponse();
     var req = httpMocks.createRequest({
       app: app,
       params: {
         tenant: 'tenantOne',
-      }
+      },
     });
     var middleware = tenantMiddleware({
       sharedDataSource: true,
       config: {
         tenants: ['tenantOne'],
         defaultApi: 'tenantOne',
-      }
+      },
     });
     middleware(req, res, next);
-    expect(setContextStub).to.have.been.calledWith('tenant', 'tenantOne');
-    expect(setContextStub).to.have.been.called;
-    expect(setContextStub.getCall(1).args[0]).to.equal('tenantOptions');
-    expect(setContextStub.getCall(1).args[1]).to.be.an.Object;
+    expect(req.__tenantMiddleware).to.contain.keys(['tenant', 'options']);
+    expect(req.__tenantMiddleware.tenant).to.equal('tenantOne');
     expect(next).to.have.been.calledOnce;
   });
-  it.skip('should set the tenant and tenantOptions for a request', function() {
+
+  it.skip('should set the tenant and tenantOptions for a request', function () {
     tenantMiddleware({ tenantConfig: {} });
     expect(ds.load).to.have.been.called;
   });
-  it('should call next with an error when a tenant id is not valid', function() {
+
+  it('should call next with an error when a tenant id is not valid', function () {
     var next = sandbox.stub();
     var res = httpMocks.createResponse();
     var req = httpMocks.createRequest({
       app: app,
       params: {
         tenant: 'tenantOne',
-      }
+      },
     });
     var middleware = tenantMiddleware({
       sharedDataSource: true,
@@ -86,24 +87,25 @@ describe('Tenant', function() {
     expect(next).to.have.been.called;
     expect(next.getCall(0).args[0].statusCode).to.equal(401);
   });
-  it('should use the default tenant when options.defaultRoot and defaultTenant are defined', function() {
+
+  it('should use the default tenant when options.defaultRoot and defaultTenant are defined', function () {
     var next = sandbox.stub();
     var res = httpMocks.createResponse();
     var req = httpMocks.createRequest({
       app: app,
       params: {
-        tenant: 'api'
-      }
+        tenant: 'api',
+      },
     });
     var middleware = tenantMiddleware({
       sharedDataSource: true,
       config: {
         tenants: ['tenantOne'],
         defaultApi: 'tenantOne',
-      }
+      },
     });
     middleware(req, res, next);
-    expect(setContextStub).to.have.have.been.calledTwice;
+    expect(req.__tenantMiddleware).to.contain.keys(['tenant', 'options']);
     expect(next).to.have.been.called;
   });
 });
