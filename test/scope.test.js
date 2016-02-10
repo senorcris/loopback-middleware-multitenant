@@ -1,23 +1,13 @@
 'use strict';
 var httpMocks = require('node-mocks-http');
 var proxyquire = require('proxyquire').noCallThru();
-var getStub;
-var multitenantScope = proxyquire('../lib/mixins/multitenant-scope', {
-  loopback: {
-    getCurrentContext: function () {
-      return {
-        get: getStub,
-      };
-    },
-  },
-});
+var multitenantScope = require('../lib/mixins/multitenant-scope');
 
 describe('Scope', function () {
   var sandbox;
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
-    getStub = sandbox.stub();
   });
 
   afterEach(function () {
@@ -189,8 +179,6 @@ describe('Scope', function () {
         data: {},
       });
       var next = sandbox.stub();
-      getStub.onCall(0).returns('tenantOne');
-      getStub.onCall(1).returns({ sharedDataSource: true });
       multitenantScope.limitChangesToTenant(ctx, next);
       expect(ctx.data).to.contain.key('tenantId');
       expect(ctx.data.tenantId).to.equal('tenantOne');
@@ -234,8 +222,6 @@ describe('Scope', function () {
       });
       var next = sandbox.stub();
       sandbox.spy(JSON, 'parse');
-      getStub.onCall(0).returns('tenantOne');
-      getStub.onCall(1).returns({ sharedDataSource: true });
       multitenantScope.setScope(ctx, next);
       expect(JSON.parse).to.have.been.calledWith(ctx.args.filter);
       expect(next).to.have.been.calledOnce;
