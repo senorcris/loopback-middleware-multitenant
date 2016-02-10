@@ -13,7 +13,6 @@ describe('Tenant', function () {
     sandbox = sinon.sandbox.create();
     ds = sandbox.stub({
       load: function () {},
-
       set: function () {},
     });
     getContextStub = sandbox.stub();
@@ -21,16 +20,7 @@ describe('Tenant', function () {
     tenantMiddleware = proxyquire('../lib/middleware/tenant', {
       '../mixins/multitenant-datasource': ds,
     });
-    app = {
-      loopback: {
-        getCurrentContext: function () {
-          return {
-            get: getContextStub,
-            set: setContextStub,
-          };
-        },
-      },
-    };
+    app = {};
   });
 
   afterEach(function () {
