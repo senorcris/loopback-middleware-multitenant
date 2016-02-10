@@ -98,4 +98,38 @@ describe('Tenant', function () {
     expect(req.__tenantMiddleware).to.contain.keys(['tenant', 'options']);
     expect(next).to.have.been.called;
   });
+
+  it('should treat req.__tenantMiddleware as immutable', function () {
+    var next = sandbox.stub();
+    var res = httpMocks.createResponse();
+    var req = httpMocks.createRequest({
+      app: app,
+      params: {
+        tenant: 'api',
+      },
+    });
+    var middleware = tenantMiddleware({
+      sharedDataSource: true,
+      config: {
+        tenants: ['tenantOne'],
+        defaultApi: 'tenantOne',
+      },
+    });
+    middleware(req, res, next);
+    expect(req.__tenantMiddleware).to.contain.keys(['tenant', 'options']);
+    try {
+      req.__tenantMiddleware.tenant = 'fail';
+    } catch(e) {
+      expect(e).to.be.ok;
+      expect(e).to.be.instanceOf(TypeError);
+    }
+    expect(req.__tenantMiddleware.tenant).to.equal('tenantOne');
+    try {
+      req.__tenantMiddleware.options.fail = 'fail';
+    } catch(e) {
+      expect(e).to.be.ok;
+      expect(e).to.be.instanceOf(TypeError);
+    }
+    expect(req.__tenantMiddleware.options.fail).to.be.undefined;
+  });
 });
