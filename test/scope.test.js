@@ -5,9 +5,21 @@ var multitenantScope = require('../lib/mixins/multitenant-scope');
 
 describe('Scope', function () {
   var sandbox;
+  var getContextStub;
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
+    getContextStub = sandbox.stub();
+    multitenantScope.setApp({
+      loopback: {
+        getCurrentContext: function() {
+          return {
+            get: getContextStub,
+            set: sandbox.stub(),
+          }
+        }
+      }
+    })
   });
 
   afterEach(function () {
@@ -71,28 +83,29 @@ describe('Scope', function () {
 
   describe('limitReadToTenant', function () {
     it('should call next with an error when tenant is not defined', function () {
-      var ctx = sandbox.stub({
-        req: httpMocks.createRequest(),
-      });
+      var ctx = sandbox.stub({});
       var next = sandbox.stub();
+      getContextStub.returns({
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.limitReadToTenant(ctx, next);
       expect(next).to.have.been.called;
     });
 
     it('should call next when the tenant mixin has been extended', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: true,
-            },
-          },
-        }),
         hookState: {},
         query: {},
       });
       var next = sandbox.stub();
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.limitReadToTenant(ctx, next);
       multitenantScope.limitReadToTenant(ctx, next);
       expect(ctx.hookState.tenantMixinWhereExtended).to.be.true;
@@ -101,18 +114,16 @@ describe('Scope', function () {
 
     it('should limit all queries to a specific tenantId', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: true,
-            },
-          },
-        }),
         hookState: {},
         query: {},
       });
       var next = sandbox.stub();
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.limitReadToTenant(ctx, next);
       expect(next).to.have.been.called;
       expect(ctx.hookState.tenantMixinWhereExtended).to.be.true;
@@ -123,20 +134,18 @@ describe('Scope', function () {
   describe('limitChangesToTenant', function () {
     it('should not change ctx.instance or ctx.data when the data source is not shared', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: false,
-            },
-          },
-        }),
         hookState: {},
         query: {},
         instance: {},
         data: {},
       });
       var next = sandbox.stub();
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: false,
+        },
+      });
       multitenantScope.limitChangesToTenant(ctx, next);
       expect(ctx.instance).to.not.contain.key('tenantId');
       expect(ctx.data).to.not.contain.key('tenantId');
@@ -144,20 +153,18 @@ describe('Scope', function () {
 
     it('should extend ctx.instance with a tenantId', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: true,
-            },
-          },
-        }),
         hookState: {},
         query: {},
         instance: {},
         data: {},
       });
       var next = sandbox.stub();
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.limitChangesToTenant(ctx, next);
       expect(ctx.instance).to.contain.key('tenantId');
       expect(ctx.instance.tenantId).to.equal('tenantOne');
@@ -166,19 +173,17 @@ describe('Scope', function () {
 
     it('should extend ctx.data with a tenantId', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: true,
-            },
-          },
-        }),
         hookState: {},
         query: {},
         data: {},
       });
       var next = sandbox.stub();
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.limitChangesToTenant(ctx, next);
       expect(ctx.data).to.contain.key('tenantId');
       expect(ctx.data.tenantId).to.equal('tenantOne');
@@ -188,19 +193,17 @@ describe('Scope', function () {
   describe('setScope', function () {
     it('should not run when sharedDataSource is false', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: false,
-            },
-          },
-        }),
         args: {
           filter: '',
         },
       });
       var next = sandbox.stub();
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: false,
+        },
+      });
       multitenantScope.setScope(ctx, next);
       expect(ctx.args.filter).to.equal('');
       expect(next).to.have.been.calledOnce;
@@ -208,20 +211,18 @@ describe('Scope', function () {
 
     it('should bail if invalid JSON is used for the filters', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: true,
-            },
-          },
-        }),
         args: {
           filter: '{"where":{"key":"value"},}',
         },
       });
       var next = sandbox.stub();
       sandbox.spy(JSON, 'parse');
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.setScope(ctx, next);
       expect(JSON.parse).to.have.been.calledWith(ctx.args.filter);
       expect(next).to.have.been.calledOnce;
@@ -229,20 +230,18 @@ describe('Scope', function () {
 
     it('should extend filters with a `tenantId` where clause', function () {
       var ctx = sandbox.stub({
-        req: httpMocks.createRequest({
-          __tenantMiddleware: {
-            tenant: 'tenantOne',
-            options: {
-              sharedDataSource: true,
-            },
-          },
-        }),
         args: {
           filter: '{"where":{"key":"value"}}',
         },
       });
       var next = sandbox.stub();
       sandbox.spy(JSON, 'stringify');
+      getContextStub.returns({
+        tenant: 'tenantOne',
+        options: {
+          sharedDataSource: true,
+        },
+      });
       multitenantScope.setScope(ctx, next);
       expect(JSON.stringify).to.have.been.calledWith({
         where: {
