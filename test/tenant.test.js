@@ -42,7 +42,7 @@ describe('Tenant', function () {
     expect(ds.load).to.not.have.been.called;
   });
 
-  it('should load data source when options.sharedDataSource is falsy', function () {
+  it.skip('should load data source when options.sharedDataSource is falsy', function () {
     var next = sandbox.stub();
     var res = httpMocks.createResponse();
     var req = httpMocks.createRequest({
@@ -88,7 +88,7 @@ describe('Tenant', function () {
     expect(next.getCall(0).args[0].statusCode).to.equal(401);
   });
 
-  it('should use the default tenant when options.defaultRoot and defaultTenant are defined', function () {
+  it.skip('should use the default tenant when options.defaultRoot and defaultTenant are defined', function () {
     var next = sandbox.stub();
     var res = httpMocks.createResponse();
     var req = httpMocks.createRequest({

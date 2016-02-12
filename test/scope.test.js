@@ -27,7 +27,7 @@ describe('Scope', function () {
   });
 
   describe('extendWithTenantId', function () {
-    it('should create the property `tenantId` for a model -- hiddenProperties', function () {
+    it('should create the property `realm` for a model -- hiddenProperties', function () {
       var ModelStub = sandbox.stub({
         definition: {
           name: 'ModelStub',
@@ -38,15 +38,15 @@ describe('Scope', function () {
         defineProperty: function () {},
       });
       multitenantScope.extendWithTenantId(ModelStub);
-      expect(ModelStub.defineProperty).to.have.been.calledWith('tenantId', {
+      expect(ModelStub.defineProperty).to.have.been.calledWith('realm', {
         type: String,
         required: true,
       });
-      expect(ModelStub.definition.settings.hiddenProperties).to.contain.key('tenantId');
-      expect(ModelStub.definition.settings.hiddenProperties.tenantId).to.be.true;
+      expect(ModelStub.definition.settings.hiddenProperties).to.contain.key('realm');
+      expect(ModelStub.definition.settings.hiddenProperties.realm).to.be.true;
     });
 
-    it('should create the property `tenantId` for a model -- hidden', function () {
+    it('should create the property `realm` for a model -- hidden', function () {
       var ModelStub = sandbox.stub({
         definition: {
           name: 'ModelStub',
@@ -57,14 +57,14 @@ describe('Scope', function () {
         defineProperty: function () {},
       });
       multitenantScope.extendWithTenantId(ModelStub);
-      expect(ModelStub.defineProperty).to.have.been.calledWith('tenantId', {
+      expect(ModelStub.defineProperty).to.have.been.calledWith('realm', {
         type: String,
         required: true,
       });
-      expect(ModelStub.definition.settings.hidden).to.contain('tenantId');
+      expect(ModelStub.definition.settings.hidden).to.contain('realm');
     });
 
-    it('should create the property `tenantId` for a model', function () {
+    it('should create the property `realm` for a model', function () {
       var ModelStub = sandbox.stub({
         definition: {
           name: 'ModelStub',
@@ -73,11 +73,11 @@ describe('Scope', function () {
         defineProperty: function () {},
       });
       multitenantScope.extendWithTenantId(ModelStub);
-      expect(ModelStub.defineProperty).to.have.been.calledWith('tenantId', {
+      expect(ModelStub.defineProperty).to.have.been.calledWith('realm', {
         type: String,
         required: true,
       });
-      expect(ModelStub.definition.settings.hidden).to.contain('tenantId');
+      expect(ModelStub.definition.settings.hidden).to.contain('realm');
     });
   });
 
@@ -112,7 +112,7 @@ describe('Scope', function () {
       expect(next).to.have.been.calledTwice;
     });
 
-    it('should limit all queries to a specific tenantId', function () {
+    it('should limit all queries to a specific realm', function () {
       var ctx = sandbox.stub({
         hookState: {},
         query: {},
@@ -127,7 +127,7 @@ describe('Scope', function () {
       multitenantScope.limitReadToTenant(ctx, next);
       expect(next).to.have.been.called;
       expect(ctx.hookState.tenantMixinWhereExtended).to.be.true;
-      expect(ctx.query.where.tenantId).to.equal('tenantOne');
+      expect(ctx.query.where.realm).to.equal('tenantOne');
     });
   });
 
@@ -147,11 +147,11 @@ describe('Scope', function () {
         },
       });
       multitenantScope.limitChangesToTenant(ctx, next);
-      expect(ctx.instance).to.not.contain.key('tenantId');
-      expect(ctx.data).to.not.contain.key('tenantId');
+      expect(ctx.instance).to.not.contain.key('realm');
+      expect(ctx.data).to.not.contain.key('realm');
     });
 
-    it('should extend ctx.instance with a tenantId', function () {
+    it('should extend ctx.instance with a realm', function () {
       var ctx = sandbox.stub({
         hookState: {},
         query: {},
@@ -166,12 +166,12 @@ describe('Scope', function () {
         },
       });
       multitenantScope.limitChangesToTenant(ctx, next);
-      expect(ctx.instance).to.contain.key('tenantId');
-      expect(ctx.instance.tenantId).to.equal('tenantOne');
-      expect(ctx.data).to.not.contain.key('tenantId');
+      expect(ctx.instance).to.contain.key('realm');
+      expect(ctx.instance.realm).to.equal('tenantOne');
+      expect(ctx.data).to.not.contain.key('realm');
     });
 
-    it('should extend ctx.data with a tenantId', function () {
+    it('should extend ctx.data with a realm', function () {
       var ctx = sandbox.stub({
         hookState: {},
         query: {},
@@ -185,8 +185,8 @@ describe('Scope', function () {
         },
       });
       multitenantScope.limitChangesToTenant(ctx, next);
-      expect(ctx.data).to.contain.key('tenantId');
-      expect(ctx.data.tenantId).to.equal('tenantOne');
+      expect(ctx.data).to.contain.key('realm');
+      expect(ctx.data.realm).to.equal('tenantOne');
     });
   });
 
@@ -228,7 +228,7 @@ describe('Scope', function () {
       expect(next).to.have.been.calledOnce;
     });
 
-    it('should extend filters with a `tenantId` where clause', function () {
+    it('should extend filters with a `realm` where clause', function () {
       var ctx = sandbox.stub({
         args: {
           filter: '{"where":{"key":"value"}}',
@@ -246,7 +246,7 @@ describe('Scope', function () {
       expect(JSON.stringify).to.have.been.calledWith({
         where: {
           key: 'value',
-          tenant: 'tenantOne',
+          realm: 'tenantOne',
         },
       });
       expect(next).to.have.been.calledOnce;
